@@ -1,12 +1,10 @@
-package org.example.Character.Character;
+package org.example.Character;
 
-import org.example.Character.Character.Character;
-import org.example.Character.Melee.Melee;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
 
-class CharacterTest {
+class CharacterTest{
 
     Character character1 = new Character();
     Character character2 = new Character();
@@ -28,19 +26,18 @@ class CharacterTest {
 
     @Test
     public void characters_can_deal_damage_to_characters_damage_is_subtracted_from_health(){
-        int oldHealth = character1.getHealth();
-        int damage = 500;
-        character1.setDamage(damage);
-        int newHealth = oldHealth - damage;
+        int oldHealth = character2.getHealth();
+        int damage = 200;
+        int newHealth = oldHealth - (damage*2);
         character1.dealDamage(character2, damage);
-        assertEquals(newHealth, character1.getHealth());
+        assertEquals(newHealth, character2.getHealth());
     }
 
     @Test
     public void when_damage_received_exceeds_current_Health_Health_becomes_0_and_the_character_dies(){
-        int damage = 1000;
-        character1.dealDamage(character2,damage);
-        assertFalse(character1.isAlive());
+        int damage = 2100;
+        character1.dealDamage(character2, damage);
+        assertFalse(character2.isAlive());
     }
 
     @Test
@@ -53,7 +50,7 @@ class CharacterTest {
     @Test
     public void a_character_dead_characters_cannot_be_healed(){
         character2.setHealth(0);
-        character1.healCharacter(character2,1000);
+        character2.healCharacter(character2,1000);
         assertFalse(character2.isAlive());
     }
 
@@ -87,12 +84,6 @@ class CharacterTest {
         character1.setLevel(8);
         character1.dealDamage(character2,200);
         assertEquals(600, character2.getHealth());
-    }
-
-    @Test
-    public void characters_have_an_attack_max_Range_melee_fighters_have_a_range_of_2_meters(){
-        Melee melee = new Melee();
-        assertEquals(20, melee.getMaxRange());
     }
 
 

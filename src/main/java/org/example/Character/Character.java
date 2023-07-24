@@ -1,6 +1,11 @@
 package org.example.Character;
 
 import org.example.Target.Target;
+import org.example.Things.Things;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class Character extends Target{
     private int health = 1000;
@@ -23,12 +28,11 @@ public class Character extends Target{
     public boolean isAlive() {
         return alive;
     }
-    private void setAlive(boolean b) {
+    public void setAlive(boolean b) {
         this.alive = b;
     }
 
-
-    private int maxRange;
+    ArrayList<String> factions = new ArrayList<String>();
 
     private int position[] = {0,0};
     @Override
@@ -41,33 +45,71 @@ public class Character extends Target{
     }
 
 
-    public void dealDamage(Character character, int damage){
-        if (!(character.equals(this))){
-            int difLevel = character.getLevel() - this.getLevel();
-            if ( difLevel >= 5) damage /= 2;
-            else damage *= 2;
-            if (character.getHealth() <= damage){
-                    character.setHealth(0);
-                    character.setAlive(false);
-            }
-            else {
-                int actHealth = character.getHealth();
-                int newHealth = actHealth - damage;
-                character.setHealth(newHealth);
-                character.setAlive(true);
+    public void dealDamage(Object object, int damage){
+        if (object.getClass() == Character.class){
+            if (!(object.equals(this)) && (isAllies((Character) object)==false)){
+                int difLevel = ((Character) object).getLevel() - this.getLevel();
+                if ( difLevel >= 5) damage /= 2;
+                else damage *= 2;
+                if (((Character) object).getHealth() <= damage){
+                    ((Character) object).setHealth(0);
+                    ((Character) object).setAlive(false);
+                }
+                else {
+                    int actHealth = ((Character) object).getHealth();
+                    int newHealth = actHealth - damage;
+                    ((Character) object).setHealth(newHealth);
+                    ((Character) object).setAlive(true);
+                }
             }
         }
-
+        else if(object.getClass() == Things.class){
+            int newHealth = ((Things) object).getHealth() - damage;
+            if (((Things) object).getHealth()>0){
+                if (newHealth>0) ((Things) object).setHealth(newHealth);
+                else {
+                    ((Things) object).setHealth(0);
+                    object = null;
+                    try {
+                        super.finalize();
+                    } catch (Throwable e) {
+                        throw new RuntimeException(e);
+                    }
+                }
+            }
+        }
     }
 
-    public void healCharacter(Character character2, int heal) {
-        if (character2.equals(this)){
-            if (character2.getHealth() > 0) {
-                int newHealth = character2.getHealth() + heal;
-                character2.setHealth(Math.min(newHealth, 1000));
+    public void healCharacter(Object object, int heal) {
+        if (object.getClass() == Character.class){
+            if (object.equals(this) || (isAllies((Character) object) == true)){
+                if (((Character) object).getHealth() > 0) {
+                    int newHealth = ((Character) object).getHealth() + heal;
+                    ((Character) object).setHealth(Math.min(newHealth, 1000));
+                }
+                else ((Character) object).setAlive(false);
             }
-            else character2.setAlive(false);
         }
+    }
+
+    public void joinFaction(String faction){
+        this.factions.add(faction);
+    }
+
+    public void leaveFaction(String faction){
+        this.factions.remove(faction);
+    }
+
+    public Boolean isAllies(Character character){
+
+        List<String> allies = (List<String>) this.factions.stream()
+                .filter(element -> character.factions.contains(element))
+                .collect(Collectors.toList());
+
+        if (allies.size()>0){
+            return true;
+        }
+        else return false;
     }
 
 

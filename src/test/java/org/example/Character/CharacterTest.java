@@ -3,11 +3,14 @@ package org.example.Character;
 import org.junit.jupiter.api.Test;
 
 import static org.junit.jupiter.api.Assertions.*;
+import org.example.Things.Things;
 
 class CharacterTest{
 
     Character character1 = new Character();
     Character character2 = new Character();
+
+    Things thing = new Things();
 
     @Test
     public void health_should_start_at_1000(){
@@ -86,5 +89,60 @@ class CharacterTest{
         assertEquals(600, character2.getHealth());
     }
 
+    @Test
+    public void characters_may_belong_to_one_or_more_Factions(){
+       Character character1 = new Character();
+       assertEquals(0,character1.factions.size());
+    }
 
+    @Test
+    public void a_character_may_join_one_or_more_factions(){
+        character1.joinFaction("faction1");
+        assertEquals(true, character1.factions.contains("faction1"));
+    }
+
+    @Test
+    public void a_character_may_leave_one_or_more_factions(){
+        character1.leaveFaction("faction1");
+        assertEquals(character1.factions.contains("faction1"), false);
+    }
+
+    @Test
+    public void players_belonging_to_the_same_faction_are_considered_allies(){
+        character1.factions.add("faction1");
+        character2.factions.add("faction1");
+        assertEquals(true, character1.isAllies(character2));
+    }
+
+    @Test
+    public void allies_cannot_deal_damage_to_one_another(){
+        character1.factions.add("faction1");
+        character2.factions.add("faction1");
+        character2.setHealth(250);
+        character1.dealDamage(character2,250);
+        assertEquals(250, character2.getHealth());
+    }
+
+    @Test
+    public void allies_can_heal_one_another(){
+        character1.factions.add("faction1");
+        character2.factions.add("faction1");
+        character2.setHealth(250);
+        character1.healCharacter(character2,250);
+        assertEquals(500, character2.getHealth());
+    }
+
+    @Test
+    public void characters_can_damage_non_character_things_anything_that_has_health_may_be_a_target(){
+        thing.setHealth(250);
+        character1.dealDamage(thing, 250 );
+        assertEquals(0, thing.getHealth());
+    }
+
+    @Test
+    public void these_things_cannot_be_healed(){
+        thing.setHealth(250);
+        character1.healCharacter(thing, 500);
+        assertEquals(250, thing.getHealth());
+    }
 }
